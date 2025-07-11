@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نمایش اطلاعات سابسکرایب</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba[0,0,0,0.1]; max-width: 800px; margin: auto; }
+        pre { background-color: #eee; padding: 15px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+        label { margin-bottom: 5px; display: block; font-weight: bold; }
+        input[type="text"] { width: calc[100% - 22px]; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        .error { color: red; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>نمایش اطلاعات سابسکرایب</h1>
+        <p>لطفاً شناسه سابسکرایب را وارد کنید و روی "نمایش" کلیک کنید تا اطلاعات نمایش داده شود.</p>
+        
+        <label for="subscribeId">شناسه سابسکرایب:</label>
+        <input type="text" id="subscribeId" placeholder="مثال: 0VuOELyerl1P">
+        <button onclick="fetchAndDisplayContent()">نمایش اطلاعات</button>
+        
+        <div id="loading" style="display:none; color: #007bff; margin-top: 10px;">در حال بارگذاری...</div>
+        <div id="error" class="error" style="display:none;"></div>
+        
+        <h3>محتوای خام:</h3>
+        <pre id="contentDisplay"></pre>
+    </div>
+
+    <script>
+        async function fetchAndDisplayContent() {
+            const base_url = "https://imobotech.com/sub/";
+            const subscribeId = document.getElementById('subscribeId').value;
+            const contentDisplay = document.getElementById('contentDisplay');
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+
+            contentDisplay.textContent = ''; // پاک کردن محتوای قبلی
+            errorDiv.textContent = ''; // پاک کردن خطاهای قبلی
+            errorDiv.style.display = 'none';
+            loading.style.display = 'block'; // نمایش پیام بارگذاری
+
+            if (!subscribeId) {
+                errorDiv.textContent = 'لطفاً شناسه سابسکرایب را وارد کنید.';
+                errorDiv.style.display = 'block';
+                loading.style.display = 'none';
+                return;
+            }
+
+            const full_url = `${base_url}{subscribeId}`;
+            
+            try {
+                const response = await fetch(full_url);
+                if (!response.ok) {
+                    throw new Error(`خطا در دریافت اطلاعات: ${response.status} ${response.statusText}`);
+                }
+                const rawData = await response.text();
+                contentDisplay.textContent = rawData;
+            } catch (e) {
+                errorDiv.textContent = `مشکل: ${e.message}. مطمئن شوید شناسه صحیح است و سایت در دسترس است.`;
+                errorDiv.style.display = 'block';
+            } finally {
+                loading.style.display = 'none'; // مخفی کردن پیام بارگذاری
+            }
+        }
+    </script>
+</body>
+</html>
